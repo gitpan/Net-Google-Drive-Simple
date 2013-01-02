@@ -28,4 +28,4 @@ requires:
   YAML: 0.71
 resources:
   repository: http://github.com/mschilli/net-google-drive-simple.git
-version: 0.01
+version: 0.02

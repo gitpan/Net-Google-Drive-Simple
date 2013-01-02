@@ -16,7 +16,7 @@ use Test::MockObject;
 use Log::Log4perl qw(:easy);
 use Data::Dumper;
 
-our $VERSION = "0.01";
+our $VERSION = "0.02";
 
 ###########################################
 sub new {
@@ -292,7 +292,11 @@ sub children {
     my $children = $self->children_by_folder_id( $folder_id, $opts, 
         $search_opts );
 
-    return( $children, $parent );
+    if( wantarray ) {
+        return( $children, $parent );
+    } else {
+        return $children;
+    }
 }
 
 ###########################################
@@ -314,6 +318,8 @@ sub data_factory {
 sub token_refresh {
 ###########################################
   my( $self, $cfg ) = @_;
+
+  DEBUG "Refreshing access token";
 
   my $req = &HTTP::Request::Common::POST(
     'https://accounts.google.com/o' .
@@ -337,6 +343,7 @@ sub token_refresh {
       $data->{ access_token };
     $cfg->{ expires } = 
       time() + $data->{ expires_in };
+    DEBUG "Token refreshed, will expire in $data->{ expires_in } seconds";
     return 1;
   }
 
