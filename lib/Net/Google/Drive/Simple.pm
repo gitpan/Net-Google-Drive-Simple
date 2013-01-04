@@ -16,7 +16,7 @@ use Test::MockObject;
 use Log::Log4perl qw(:easy);
 use Data::Dumper;
 
-our $VERSION = "0.02";
+our $VERSION = "0.03";
 
 ###########################################
 sub new {
@@ -25,6 +25,7 @@ sub new {
 
     my $self = {
         config_file => undef,
+        cfg         => undef,
         api_file_url    => "https://www.googleapis.com/drive/v2/files",
         api_upload_url  => "https://www.googleapis.com/upload/drive/v2/files",
         %options,
@@ -58,12 +59,27 @@ sub init {
     $self->{ cfg } = $cfg;
 
     $self->token_refresh( $cfg );
+
+    DEBUG "Testing API with refreshed token";
+    if( !$self->api_test() ) {
+        LOGDIE "api_test failed after token refresh";
+    }
+
     DumpFile( $self->{ config_file }, $cfg );
     $self->{ cfg } = $cfg;
 
     $self->{ init_done } = 1;
 
     return 1;
+}
+
+###########################################
+sub token_expire {
+###########################################
+    my( $self ) = @_;
+
+      # expire the token
+    $self->{ cfg }->{ expires } = time() - 1;
 }
 
 ###########################################
@@ -76,7 +92,7 @@ sub token_expired {
     if( $time_remaining < 300 ) {
 
         if( $time_remaining < 0 ) {
-            INFO "Token expired $time_remaining seconds ago";
+            INFO "Token expired ", -$time_remaining, " seconds ago";
         } else {
             INFO "Token will expire in $time_remaining seconds";
         }
@@ -90,24 +106,66 @@ sub token_expired {
 }
 
 ###########################################
+sub api_test {
+###########################################
+    my( $self ) = @_;
+
+    my $url = $self->file_url( { maxResults => 1 } );
+
+    my $ua = LWP::UserAgent->new();
+
+    my $req = HTTP::Request->new(
+        GET => $url->as_string,
+        HTTP::Headers->new( Authorization => 
+            "Bearer " . $self->{ cfg }->{ access_token })
+    );
+
+    DEBUG "Fetching $url";
+
+    my $resp = $ua->request( $req );
+
+    if( $resp->is_success() ) {
+        DEBUG "API tested OK";
+        return 1;
+    }
+
+    ERROR "API error: ", $resp->message();
+    return 0;
+}
+
+###########################################
+sub file_url {
+###########################################
+    my( $self, $opts ) = @_;
+
+    $opts = {} if !defined $opts;
+
+    my $default_opts = {
+        maxResults => 3000,
+    };
+
+    $opts = {
+        %$default_opts,
+        %$opts,
+    };
+
+    my $url = URI->new( $self->{ api_file_url } );
+    $url->query_form( $opts );
+    
+    return $url;
+}
+
+###########################################
 sub files {
 ###########################################
     my( $self, $opts ) = @_;
 
     $self->init();
 
-    if( !defined $opts ) {
-        $opts = { 
-            maxResults => 3000,
-        };
-    }
-
     my @docs = ();
         
     while( 1 ) {
-        my $url = URI->new( $self->{ api_file_url } );
-        $url->query_form( $opts );
-
+        my $url = $self->file_url( $opts );
         my $data = $self->http_json( $url );
     
         for my $item ( @{ $data->{ items } } ) {
@@ -156,6 +214,11 @@ sub folder_create {
 sub file_upload {
 ###########################################
     my( $self, $file, $parent_id, $file_id ) = @_;
+
+      # Since a file upload can take a long time, refresh the token
+      # just in case.
+    $self->token_expire();
+    $self->init();
 
     my $title = basename $file;
 
@@ -347,7 +410,7 @@ sub token_refresh {
     return 1;
   }
 
-  DEBUG $resp->status_line();
+  ERROR "Token refresh failed: ", $resp->status_line();
   return undef;
 }
 
@@ -363,12 +426,12 @@ sub http_loop {
     my $SLEEP_INTERVAL = 10;
 
     {
-        DEBUG "Fetching ", $req->url->as_string;
-
           # refresh token if necessary
         if( ! $noinit ) {
             $self->init();
         }
+
+        DEBUG "Fetching ", $req->url->as_string;
 
         $resp = $ua->request( $req );
 
@@ -544,7 +607,7 @@ for details on which fields are available.
 Return all files on the drive as a reference to an array.
 Will return all entries found unless C<maxResults> is set:
 
-    my $files = $gd->files( "/path/to", { maxResults => 3 } )
+    my $files = $gd->files( { maxResults => 3 } )
 
 Note that Google limits the number of entries returned by default to
 100, and seems to restrict the maximum number of files returned
