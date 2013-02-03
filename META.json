@@ -32,6 +32,7 @@
       },
       "runtime" : {
          "requires" : {
+            "File::MMagic" : "1.29",
             "JSON" : "2.53",
             "LWP::UserAgent" : "6.02",
             "Log::Log4perl" : "1",
@@ -49,5 +50,5 @@
          "url" : "http://github.com/mschilli/net-google-drive-simple.git"
       }
    },
-   "version" : "0.03"
+   "version" : "0.04"
 }
