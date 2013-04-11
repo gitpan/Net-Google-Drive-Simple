@@ -24,9 +24,9 @@ requires:
   Log::Log4perl: 1
   Mojolicious: 1.16
   Pod::Usage: 1.36
-  Sysadm::Install: 0.39
+  Sysadm::Install: 0.43
   Test::MockObject: 1.09
   YAML: 0.71
 resources:
   repository: http://github.com/mschilli/net-google-drive-simple.git
-version: 0.04
+version: 0.05
