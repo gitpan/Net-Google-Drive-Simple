@@ -34,9 +34,10 @@
          "requires" : {
             "File::MMagic" : "1.29",
             "JSON" : "2.53",
+            "LWP::Protocol::https" : "6.04",
             "LWP::UserAgent" : "6.02",
             "Log::Log4perl" : "1",
-            "Mojolicious" : "1.16",
+            "Mojolicious" : "4.13",
             "Pod::Usage" : "1.36",
             "Sysadm::Install" : "0.43",
             "Test::MockObject" : "1.09",
@@ -50,5 +51,5 @@
          "url" : "http://github.com/mschilli/net-google-drive-simple.git"
       }
    },
-   "version" : "0.05"
+   "version" : "0.06"
 }
