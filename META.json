@@ -4,7 +4,7 @@
       "Mike Schilli <cpan@perlmeister.com>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "ExtUtils::MakeMaker version 6.62, CPAN::Meta::Converter version 2.120351",
+   "generated_by" : "ExtUtils::MakeMaker version 6.62, CPAN::Meta::Converter version 2.132140",
    "license" : [
       "unknown"
    ],
@@ -51,5 +51,5 @@
          "url" : "http://github.com/mschilli/net-google-drive-simple.git"
       }
    },
-   "version" : "0.07"
+   "version" : "0.08"
 }
