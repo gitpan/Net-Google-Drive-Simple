@@ -4,7 +4,7 @@
       "Mike Schilli <cpan@perlmeister.com>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "ExtUtils::MakeMaker version 6.98, CPAN::Meta::Converter version 2.141170",
+   "generated_by" : "ExtUtils::MakeMaker version 6.66, CPAN::Meta::Converter version 2.133380",
    "license" : [
       "unknown"
    ],
@@ -38,7 +38,7 @@
             "LWP::UserAgent" : "6.02",
             "Log::Log4perl" : "1",
             "Mojolicious" : "4.13",
-            "OAuth::Cmdline" : "0.02",
+            "OAuth::Cmdline" : "0.03",
             "Pod::Usage" : "1.36",
             "Sysadm::Install" : "0.43",
             "Test::MockObject" : "1.09",
@@ -52,5 +52,5 @@
          "url" : "http://github.com/mschilli/net-google-drive-simple.git"
       }
    },
-   "version" : "0.09"
+   "version" : "0.10"
 }
