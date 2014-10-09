@@ -5,10 +5,11 @@
 use warnings;
 use strict;
 
+use FindBin qw( $Bin );
 use Test::More;
 
-my $nof_tests      = 6;
-my $nof_live_tests = 5;
+my $nof_tests      = 10;
+my $nof_live_tests = 9;
 plan tests => $nof_tests;
 
 use Net::Google::Drive::Simple;
@@ -25,13 +26,28 @@ SKIP: {
         skip "LIVE_TEST not set, skipping live tests", $nof_live_tests;
     }
 
-    my( $files, $parent ) = $gd->children( "/", 
+    my( $files, $parent ) = $gd->children( "/this-path-does-not-exist", 
         { maxResults => 3 }, { page => 0 },
     );
 
+    ok !defined $files, "non-existent path";
+    is $gd->error(), 
+      "Child this-path-does-not-exist not found", 
+      "error message";
+
+    ( $files, $parent ) = $gd->children( "/", 
+        { maxResults => 3 }, { page => 0 },
+    );
+
+    # upload a test file
+    my $testfile = "$Bin/data/testfile";
+    my $file_id = $gd->file_upload( $testfile, $parent );
+    ok defined $file_id, "upload ok";
+    ok $gd->file_delete( $file_id ), "delete ok";
+
     is ref($files), "ARRAY", "children returned ok";
 
-    $files = $gd->children( "/", 
+    $files = $gd->children( "/",
         { maxResults => 3 }, { page => 0 },
     );
 
